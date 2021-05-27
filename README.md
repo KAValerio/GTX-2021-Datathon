@@ -14,5 +14,5 @@ Download the data from the google drive that was emailed out. Extract the files 
 MAIN PROJECT FOLDER \
 ├── Data for Datathon \
 │   ├── Duvernay/ \
-│   |── Eaglebine/ \
+│   ├── Eaglebine/ \
 │   └── ...
