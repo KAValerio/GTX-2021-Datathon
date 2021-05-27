@@ -2,7 +2,7 @@
   --Under Construction--
 
 
-## Environment Setup (assuming conda disribution)
+## Environment Setup (assuming conda Python disribution)
 Please see the following link for instructions
 
 	https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file
