@@ -11,7 +11,7 @@ Please see the following link for instructions
 ## Adding Data to Project
 Download the data from the google drive that was emailed out. Extract the files and unzip. Ensure that the main data folder is titled 'Data for Datathon' and follows the following structure:
 
-MAIN PROJECT FOLDER
+MAIN PROJECT FOLDER \
 ├── Data for Datathon \
 │   ├── Duvernay/ \
 │   └── Eaglebine/ \
