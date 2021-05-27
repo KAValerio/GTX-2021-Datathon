@@ -1,0 +1,17 @@
+name: gtx2021b
+channels:
+  - defaults
+dependencies:
+  - matplotlib=3.3.4=py38haa95532_0
+  - numpy=1.20.2=py38ha4e8547_0
+  - pandas=1.2.4=py38hd77b12b_0
+  - pillow=8.2.0=py38h4fa10fc_0
+  - pip=21.1.1=py38haa95532_0
+  - python=3.8.10=hdbf39b2_7
+  - scikit-learn=0.24.2=py38hf11a4ad_0
+  - scipy=1.6.2=py38h66253e8_1
+  - seaborn=0.11.1=pyhd3eb1b0_0
+  - tqdm=4.59.0=pyhd3eb1b0_1
+  - pip:
+    - laspy==1.7.0
+    
