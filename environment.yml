@@ -1,4 +1,4 @@
-name: gtx2021b
+name: gtx2021
 channels:
   - defaults
 dependencies:
