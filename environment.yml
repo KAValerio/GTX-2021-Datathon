@@ -15,4 +15,5 @@ dependencies:
   - pip:
     - laspy==1.7.0
     - folium==0.12.1
+    - lasio==0.29
     
