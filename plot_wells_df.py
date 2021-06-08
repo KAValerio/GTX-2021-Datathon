@@ -10,8 +10,7 @@ def plot_wells_df(df, lat, long, name, *vars, mapname='Map1'):
         lat(str) - column name for lattitude values
         long(str) - column name for longitude values
         name(str) - column name for well name
-        attr(str) - column name for attribute to color well locations by
-        attr(str optional) - column name for secondary attribute to color well locations by
+        vars - column name(s) for attribute(s) to color well locations by. Each attribute will be added as a map layer
         mapname(str optional) - name for the output map
     """
 
@@ -19,41 +18,46 @@ def plot_wells_df(df, lat, long, name, *vars, mapname='Map1'):
     # Import libraries
     import folium
     import numpy as np
-    import pandas as pd
-    import geopandas as gpd
+
     print(df.head())
-    # Create 5 lists for the surface coordinates, well UWI, elevation, and td
+    # Create lists for the surface coordinates and well UWI
     surf_lat = list(df[lat])
     surf_long = list(df[long])
     name = list(df[name])
     
-     # Let's center the map by calculating the average lat and long
+     # Center the map by calculating the average lat and long for the dataset
     map_lat = np.mean(surf_lat)
     map_long = np.mean(surf_long)
 
-    # Create a popup message with information about the well and a link
+    # Create a popup message with information about the well and a link TO BE UPDATED...
     html = """<h4>Duvernay Well Information:</h4>
     Name: <a href="https://www.google.com/search?q={} Duverney" target="_blank">{}</a><br>
-    Value: {} m
+    Value: {} 
     """
+    
+    # Create a map
     map = folium.Map(location=[map_lat,map_long],tiles=None,zoom_start=5)
     base_map = folium.FeatureGroup(name='Basemap', overlay=True, control=False)
     folium.TileLayer(tiles='Stamen Terrain').add_to(base_map)
     base_map.add_to(map)
 
+    # create markers for attributes in vars
     ind = 0
-    # create markers for attributes
     for var in vars:
-
+        ps = df[var]
+        P25 = ps.quantile(0.25)
+        P75 = ps.quantile(0.75)
+        print (P25,P75)
         attr = list(df[var])
+        #print(P25,P75)
         # calculate min/max for attr
         attr_min = np.nanmin(attr)
         attr_max = np.nanmax(attr)
         print(var + ' min = ' + str(attr_min) + ', max = ' + str(attr_max))
     
-        # Create a color table for the circle marker
+        # Create a color table for the attribute
         color = list(np.empty(len(attr)))
-        crange = np.linspace(attr_min,attr_max,5)
+        crange = np.linspace(P25,P75,5)
         ind = 0
         for a in attr:
             if a <= crange[0]:
@@ -75,13 +79,13 @@ def plot_wells_df(df, lat, long, name, *vars, mapname='Map1'):
                 color[ind] = 'grey'
                 ind += 1
         
-        
         fg=folium.FeatureGroup(var,overlay=False)
-
+        
+        # Add each circle marker with assigned color based on value
         for lt, ln, nm, a1, c in zip(surf_lat,surf_long,name,attr,color):
             iframe = folium.IFrame(html=html.format(nm, nm, str(a1)), width=200, height=100)
             folium.CircleMarker(location=[lt,ln], popup=folium.Popup(iframe), radius=4, color='black', 
-                                            opacity=0.5, fill_color=c, fill_opacity=0.7).add_to(fg).add_to(fg)
+                                            opacity=0.5, fill_color=c, fill_opacity=0.7).add_to(fg)
         fg.add_to(map)
     folium.LayerControl().add_to(map)    
                                 
