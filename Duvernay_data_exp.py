@@ -78,48 +78,23 @@ for temp in temp_list:
 # reorder column
 full_df = master_df[['UWI','Set','DST Temp (C)','True1(C)','DST_mid_depth','DST_Temp2 (C)','True2(C)','Pressure Depth (m)',
                     'Static_Temp (C)','True_TD(C)','TD (m)']]
+
+# create training and validat
 training_df = full_df[full_df['Set']=='Training']
 validation_df = full_df[full_df['Set']=='Validation_Testing']
+print(validation_df.describe())
 
-# print(master_df.iloc[35])
-
-# Create a subset of wells with large differentials
-large_temp_diff = master_df[abs(master_df['temp_diff']) > 5]
-large_depth_diff = master_df[abs(master_df['DST_depth_diff']) > 100]
-#print(len(large_depth_diff),len(large_temp_diff))
-#print(large_depth_diff.iloc[15]) #well with no DST temp2
-#print(large_temp_diff.iloc[11])
-
-# Plot
-fig, ax = plt.subplots(3,2,sharex=True,sharey=True)
-
-#color = sns.color_palette("seismic", n_colors = 11, as_cmap = True)
-ax[2,0] = sns.scatterplot(x=master_df['DST Temp (C)'],y=master_df['DST_mid_depth'],hue=master_df['DST Temp (C)'],palette ='coolwarm',alpha = 0.6,ax=ax[2,0])
-ax[1,0] = sns.scatterplot(x=large_temp_diff['DST Temp (C)'],y=large_temp_diff['DST_mid_depth'],hue=large_temp_diff['temp_diff'],palette ='seismic',ax=ax[1,0])
-ax[0,0] = sns.scatterplot(x=large_depth_diff['DST Temp (C)'],y=large_depth_diff['DST_mid_depth'],hue=large_depth_diff['DST_depth_diff'],palette ='seismic',ax=ax[0,0])
-ax[2,1] = sns.scatterplot(x=master_df['DST_Temp2 (C)'],y=master_df['Pressure Depth (m)'],hue=master_df['DST_Temp2 (C)'],palette ='coolwarm',alpha = 0.6,ax=ax[2,1])
-ax[1,1] = sns.scatterplot(x=large_temp_diff['DST_Temp2 (C)'],y=large_temp_diff['Pressure Depth (m)'],hue=large_temp_diff['temp_diff'],palette ='seismic',ax=ax[1,1])
-ax[0,1] = sns.scatterplot(x=large_depth_diff['DST_Temp2 (C)'],y=large_depth_diff['Pressure Depth (m)'],hue=large_depth_diff['DST_depth_diff'],palette ='seismic',ax=ax[0,1])
-#ax[1] = sns.regplot(x='DST Temp (C)',y='DST_mid_depth',data=master_df, order = 1, ax=ax[1], lowess=False)
-#ax[1] = sns.regplot(x='DST_Temp2 (C)',y='Pressure Depth (m)',data=master_df, order = 1, ax=ax[1])
-ax[1,0].invert_yaxis()
-plt.show()
-
+# plot
 fig1, ax1 = plt.subplots(1,3,sharey=True,sharex=True)
 
 _ = sns.scatterplot(x=training_df['True1(C)'],y = training_df['DST_mid_depth'],alpha = 0.6,ax=ax1[0])
 _ = sns.scatterplot(x=training_df['DST Temp (C)'],y = training_df['DST_mid_depth'],palette ='Paired' ,alpha = 0.6,ax=ax1[0])
-_ = sns.scatterplot(x=training_df['True2(C)'],y = training_df['Pressure Depth (m)'],alpha = 0.6,ax=ax1[1])
-_ = sns.scatterplot(x=training_df['DST_Temp2 (C)'],y = training_df['Pressure Depth (m)'],palette ='Paired',alpha = 0.6,ax=ax1[1])
-_ = sns.scatterplot(x=training_df['True_TD(C)'],y = training_df['TD (m)'],alpha = 0.6,ax=ax1[2])
-_ = sns.scatterplot(x=training_df['Static_Temp (C)'],y = training_df['TD (m)'],palette ='Paired',alpha = 0.6,ax=ax1[2])
+#_ = sns.scatterplot(x=training_df['True2(C)'],y = training_df['Pressure Depth (m)'],alpha = 0.6,ax=ax1[1])
+_ = sns.scatterplot(x=full_df['DST_Temp2 (C)'],y = full_df['Pressure Depth (m)'],hue =full_df['Set'],palette = 'Set1',alpha = 0.6,ax=ax1[1])
+_ = sns.scatterplot(x=full_df['True_TD(C)'],y = full_df['TD (m)'],hue = full_df['Set'],palette ='Set2',alpha = 0.6,ax=ax1[2])
+_ = sns.scatterplot(x=training_df['Static_Temp (C)'],y = training_df['TD (m)'],alpha = 0.6,ax=ax1[2])
 ax1[0].invert_yaxis()
 plt.show()
-
-
-
-# print(len(pd.unique(Duvernay_True['UWI'])))
-# print(Duvernay_True.groupby('UWI')['MMAX'].max()['amdahl']
 
 #print(Static_Duvernay_out.head())
 pwdf(master_df, 'Lat', 'Long','UWI','TD (m)','True_TD(C)','DST_mid_depth','True1(C)',
