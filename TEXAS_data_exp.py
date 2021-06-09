@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn  as sns
 from plot_wells_df import plot_wells_df as pwdf
 from extract_true import extract_true as et
+from extract_median import extract_median as em
 
 # Load static temperature data, considered highest confidence bottom hole temperature
 Static_log_temp = pd.read_csv('./Data for Datathon/Data_static_logs.csv')
@@ -26,7 +27,7 @@ master_df = master_df.merge(static4merge, on='UWI',how='left')
 # Load set assignment file
 set_assign = pd.read_csv('./Data for Datathon/set_assign.csv')
 # merge set assigment with the well list
-master_df = master_df.merge(set_assign, on='UWI', how='left')
+master_df = master_df.merge(set_assign, on='UWI', how='left').reset_index()
 
 # Load prod data.
 #Eagle_prod = pd.read_excel('./Data for Datathon/Eaglebine/EagleBine Casing production summary for SPE April21 2020.xlsx')
@@ -48,16 +49,36 @@ for temp in temp_list:
     master_df[temp[0]] = np.nan
     et(master_df,True_temp,'UWI','True_depth_SS(ft)',temp[1],temp[0])
 
+# Load mudweight-depth profiles
+MW_temp = pd.read_excel('./Data for Datathon/Eaglebine/Eaglebine mud weight SPE April 21 2021.xlsx')
+#MW_temp['UWI'] = MW_temp['UWI'].astype(str)
+
+# Extract average Mud weight within depth window around BHTorMRT depths
+fig, ax = plt.subplots()
+_ = sns.scatterplot(x='Mud Wt',y = 'MW@Depth(KB)',data=MW_temp, palette = 'binary',alpha=0.4)
+rg_list = [500,1000,1500]
+for range in rg_list:
+    out = 'MW@BHT_'+str(range)
+    master_df[out] = np.nan
+    img = 0
+    em(master_df,'BHT_ subsurface (ft)',MW_temp,'Mud Wt','MW@Depth(KB)',range,out)
+    _ = sns.scatterplot(x=out,y = 'BHT_ subsurface (ft)',data=master_df)
+    img +=1
+ax.invert_yaxis()
+rg_list.insert(0,'orig')
+plt.legend(rg_list)
+plt.show()
+
 # calculate temp diff of temp measurements relative to Time since circulation
 master_df['dTemp(F)'] = master_df['True_Temp_BHT(F)']-master_df['BHTorMRT(F)']
 print(master_df.columns)
-# create training and validat
+
+# create training and validation subsets
 training_df = master_df[master_df['Set']=='Training']
 validation_df = master_df[master_df['Set']=='Validation_Testing']
 
-# plot TSC versus dTemp
-fig, ax = plt.subplots()
-_ = sns.regplot(x='dTemp(F)',y = 'TSCorORT(hrs)',data = master_df, ci = [15,85])
+# Check relationship of the temp difference versus TSC
+_ = sns.regplot(x='dTemp(F)',y = 'TSCorORT(hrs)',data = master_df)
 plt.show()
 
 # plot temperature versus depth data
