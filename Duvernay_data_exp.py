@@ -33,7 +33,6 @@ DST_temp = DST_temp.rename(columns={'DST Start Depth (MD) (m)':'DST Start (m)','
                                 'Formation DSTd':'DST Formation'})
 DST_temp['DST_mid_depth'] = (DST_temp['DST End (m)']+DST_temp['DST Start (m)'])/2
 
-
 # merge DST data with well file
 master_df = master_df.merge(DST_temp, on='UWI')
 # calculate Sub sea depth for true temp extraction
@@ -47,8 +46,6 @@ master_df = master_df.merge(prod_temp, on='UWI')
 
 # Load dst pressure and temperature data.
 Duvernay_press = pd.read_excel('./Data for Datathon/Duvernay/Duvernay/Duvernay DST Pressures SPE May 2 2021.xlsx')
-test = Duvernay_press[Duvernay_press['Well ID']=='100113603220W400']
-#print(test.iloc[0])
 press_temp = Duvernay_press[['Well ID','Initial Hydrostatic Pressure (kPa)','Pressure Recorder Depth (m)',
                             'DST Bottom Hole Temp. (degC)','Formation DSTd']].rename(columns={'Well ID':'UWI', 'Pressure Recorder Depth (m)':'Pressure Depth (m)',
                             'Initial Hydrostatic Pressure (kPa)':'Init HS Press (kPa)',
@@ -71,9 +68,7 @@ Duvernay_True = pd.read_excel('./Data for Datathon/Duvernay/Duvernay/Duvenay Tru
 temp_list = [['True1(C)','DST_mid_depth_SS'],['True2(C)','Pressure Depth SS (m)'],['True_TD(C)','TD SS(m)']]
 for temp in temp_list:
     master_df[temp[0]] = np.nan
-    new_df = et(master_df,Duvernay_True,temp[1],temp[0])
-
-
+    et(master_df,Duvernay_True,'UWI','Depths subsea (m)',temp[1],temp[0])
 
 # reorder column
 full_df = master_df[['UWI','Set','DST Temp (C)','True1(C)','DST_mid_depth','DST_Temp2 (C)','True2(C)','Pressure Depth (m)',
