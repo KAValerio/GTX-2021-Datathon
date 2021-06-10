@@ -17,12 +17,13 @@ def extract_median(df1,df1_depth,df2,df2_attr,df2_depth,df2_range,attr_out):
         depth_min = X - df2_range/2
         depth_max = X + df2_range/2
         try:
-            df2[(df2[df2_depth] > depth_min) & (df2[df2_depth] < depth_max)]
+            df2[(df2[df2_depth] > depth_min) & (df2[df2_depth] < depth_max)][df2_attr]
         except:
             pass
         else:
             df2_subset = df2[(df2[df2_depth] > depth_min) & (df2[df2_depth] < depth_max)]
-            Y = np.median(df2_subset[df2_attr])
+            a = df2_subset[df2_attr]
+            Y = np.NaN if np.all(a!=a) else np.nanmean(a)
             df1.at[ind,attr_out] = Y
-    
+                
     return(df1)

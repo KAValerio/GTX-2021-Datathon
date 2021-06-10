@@ -1,3 +1,4 @@
+from re import sub
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,6 +6,8 @@ import seaborn  as sns
 from plot_wells_df import plot_wells_df as pwdf
 from extract_true import extract_true as et
 from extract_median import extract_median as em
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 
 # Load static temperature data, considered highest confidence bottom hole temperature
 Static_log_temp = pd.read_csv('./Data for Datathon/Data_static_logs.csv')
@@ -52,10 +55,10 @@ for temp in temp_list:
 # Load mudweight-depth profiles
 MW_temp = pd.read_excel('./Data for Datathon/Eaglebine/Eaglebine mud weight SPE April 21 2021.xlsx')
 
-# Extract average Mud weight within depth window around BHTorMRT depths
+# Extract em Mud weight within depth window around BHTorMRT depths
 fig, ax = plt.subplots()
 _ = sns.scatterplot(x='Mud Wt',y = 'MW@Depth(KB)',data=MW_temp, palette = 'binary',alpha=0.4)
-rg_list = [500,1000,1500]
+rg_list = [500,1000,2000]
 for range in rg_list:
     out = 'MW@BHT_'+str(range)
     master_df[out] = np.nan
@@ -68,34 +71,53 @@ rg_list.insert(0,'orig')
 plt.legend(rg_list)
 plt.show()
 
-# calculate temp diff of temp measurements relative to Time since circulation
-master_df['dTemp(F)'] = master_df['True_Temp_BHT(F)']-master_df['BHTorMRT(F)']
-print(master_df.columns)
-
 # create TrueTemp column from Static (primary) and True TD (secondary)
 master_df['TrueTemp'] = master_df['Static_Temp (F)'].fillna(master_df['True_TD(F)'])
+
+# calculate Waples corrected temps
+Temp_surf = 70 # average annual surface temp estimation
+# calculate f and see if it has a depth trend
+master_df['f_Waples_calc'] = (master_df['True_Temp_BHT(F)'] - Temp_surf)/(master_df['BHTorMRT(F)'] - Temp_surf)
 print(master_df.describe())
+
+fig, ax = plt.subplots()
+_ = sns.scatterplot(x='f_Waples_calc',y ='BHT_ subsurface (ft)',data=master_df, palette = 'binary',alpha=0.4)
+rg_list = [100,500,1000]
+for range in rg_list:
+    out = 'Waples_'+str(range)
+    master_df[out] = np.nan
+    img = 0
+    em(master_df,'BHT_ subsurface (ft)',master_df,'f_Waples_calc','BHT_ subsurface (ft)',range,out)
+    _ = sns.scatterplot(x=out,y ='BHT_ subsurface (ft)',data=master_df)
+    img +=1
+ax.invert_yaxis()
+rg_list.insert(0,'orig')
+plt.legend(rg_list)
+plt.show()
+
+master_df['Temp_Waples_calc'] = master_df['Waples_1000']*(master_df['BHTorMRT(F)'] - Temp_surf) +  Temp_surf
+# calculate temp diff of Waples calc and measured temp
+master_df['dTemp(F)'] = master_df['Temp_Waples_calc']-master_df['BHTorMRT(F)']
+print(master_df.columns)
 
 # reorganize master df and export csv file 
 export = master_df[['UWI', 'SurfLat', 'SurfLong','GL(ft)','TD (ft)','TD SS(ft)', # well info
                     'BHT_SS(ft)','BHT_ subsurface (ft)','BHTorMRT(F)','TSCorORT(hrs)', # raw data
-                    'MW@BHT_500','MW@BHT_1000','MW@BHT_1500','dTemp(F)', # calculated data
+                    'MW@BHT_2000','Temp_Waples_calc','dTemp(F)',  # calculated data
                     'Set','True_Temp_BHT(F)','True_TD(F)','Static_Temp (F)','TrueTemp']] # setclass and true data
 
-# export.to_csv('./Data for Datathon/Structured Data/Texas_master_df_v1.csv')
-
-# create training and validation subsets
-training_df = master_df[master_df['Set']=='Training']
-validation_df = master_df[master_df['Set']=='Validation_Testing']
+export.to_csv('./Data for Datathon/Structured Data/Texas_master_df_v1.csv')
 
 # Check relationship of the temp difference versus TSC
-_ = sns.regplot(x='dTemp(F)',y = 'TSCorORT(hrs)',data = master_df)
-plt.show()
+# _ = sns.regplot(x='dTemp(F)',y = 'TSCorORT(hrs)',data = master_df)
+# plt.show()
 
 # plot temperature versus depth data
 fig1, ax1 = plt.subplots(1,3,sharey=True,sharex=True)
-_ = sns.scatterplot(x=training_df['True_Temp_BHT(F)'],y = training_df['BHT_SS(ft)'],alpha = 0.6,ax=ax1[0])
-_ = sns.scatterplot(x=training_df['BHTorMRT(F)'],y = training_df['BHT_SS(ft)'],palette ='Paired' ,alpha = 0.6,ax=ax1[0])
+_ = sns.scatterplot(x=master_df['True_Temp_BHT(F)'],y = master_df['BHT_SS(ft)'],alpha = 0.5,ax=ax1[0])
+_ = sns.scatterplot(x=master_df['BHTorMRT(F)'],y = master_df['BHT_SS(ft)'],alpha = 0.7,ax=ax1[0])
+_ = sns.scatterplot(x=master_df['Temp_Waples_calc'],y = master_df['BHT_SS(ft)'],alpha = 0.7,ax=ax1[0])
+plt.legend(['True','Raw','Waple'])
 #_ = sns.scatterplot(x=training_df['True2(C)'],y = training_df['Pressure Depth (m)'],alpha = 0.6,ax=ax1[1])
 _ = sns.scatterplot(x=master_df['BHTorMRT(F)'],y = master_df['BHT_SS(ft)'],hue =master_df['Set'],palette = 'Set1',alpha = 0.6,ax=ax1[1])
 legend3 = ['True','Static']
