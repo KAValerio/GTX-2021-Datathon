@@ -51,7 +51,6 @@ for temp in temp_list:
 
 # Load mudweight-depth profiles
 MW_temp = pd.read_excel('./Data for Datathon/Eaglebine/Eaglebine mud weight SPE April 21 2021.xlsx')
-#MW_temp['UWI'] = MW_temp['UWI'].astype(str)
 
 # Extract average Mud weight within depth window around BHTorMRT depths
 fig, ax = plt.subplots()
@@ -73,6 +72,18 @@ plt.show()
 master_df['dTemp(F)'] = master_df['True_Temp_BHT(F)']-master_df['BHTorMRT(F)']
 print(master_df.columns)
 
+# create TrueTemp column from Static (primary) and True TD (secondary)
+master_df['TrueTemp'] = master_df['Static_Temp (F)'].fillna(master_df['True_TD(F)'])
+print(master_df.describe())
+
+# reorganize master df and export csv file 
+export = master_df[['UWI', 'SurfLat', 'SurfLong','GL(ft)','TD (ft)','TD SS(ft)', # well info
+                    'BHT_SS(ft)','BHT_ subsurface (ft)','BHTorMRT(F)','TSCorORT(hrs)', # raw data
+                    'MW@BHT_500','MW@BHT_1000','MW@BHT_1500','dTemp(F)', # calculated data
+                    'Set','True_Temp_BHT(F)','True_TD(F)','Static_Temp (F)','TrueTemp']] # setclass and true data
+
+# export.to_csv('./Data for Datathon/Structured Data/Texas_master_df_v1.csv')
+
 # create training and validation subsets
 training_df = master_df[master_df['Set']=='Training']
 validation_df = master_df[master_df['Set']=='Validation_Testing']
@@ -87,11 +98,13 @@ _ = sns.scatterplot(x=training_df['True_Temp_BHT(F)'],y = training_df['BHT_SS(ft
 _ = sns.scatterplot(x=training_df['BHTorMRT(F)'],y = training_df['BHT_SS(ft)'],palette ='Paired' ,alpha = 0.6,ax=ax1[0])
 #_ = sns.scatterplot(x=training_df['True2(C)'],y = training_df['Pressure Depth (m)'],alpha = 0.6,ax=ax1[1])
 _ = sns.scatterplot(x=master_df['BHTorMRT(F)'],y = master_df['BHT_SS(ft)'],hue =master_df['Set'],palette = 'Set1',alpha = 0.6,ax=ax1[1])
-_ = sns.scatterplot(x=master_df['True_TD(F)'],y = master_df['TD (ft)'],hue = master_df['Set'],palette ='Set2',alpha = 0.6,ax=ax1[2])
-_ = sns.scatterplot(x=training_df['Static_Temp (F)'],y = training_df['TD (ft)'],alpha = 0.6,ax=ax1[2])
+legend3 = ['True','Static']
+_ = sns.scatterplot(x=master_df['True_TD(F)'],y = master_df['TD (ft)'],alpha = 0.6,ax=ax1[2])
+_ = sns.scatterplot(x=master_df['Static_Temp (F)'],y = master_df['TD (ft)'],alpha = 0.8,ax=ax1[2])
+plt.legend(legend3)
 ax1[0].invert_yaxis()
 plt.show()
 
 #print(Static_Duvernay_out.head())
 pwdf(master_df, 'SurfLat', 'SurfLong','UWI','TD (ft)','True_TD(F)','BHT_SS(ft)','True_Temp_BHT(F)',
-                mapname='Texas_Data')
+                mapname='./Data for Datathon/Structured Data/Texas_Data')

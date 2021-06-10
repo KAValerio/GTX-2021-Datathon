@@ -70,14 +70,23 @@ for temp in temp_list:
     master_df[temp[0]] = np.nan
     et(master_df,Duvernay_True,'UWI','Depths subsea (m)',temp[1],temp[0])
 
-# reorder column
-full_df = master_df[['UWI','Set','DST Temp (C)','True1(C)','DST_mid_depth','DST_Temp2 (C)','True2(C)','Pressure Depth (m)',
-                    'Static_Temp (C)','True_TD(C)','TD (m)']]
+# create TrueTemp column from Static (primary) and True_TD (Secondary)
+master_df['TrueTemp'] = master_df['Static_Temp (C)'].fillna(master_df['True_TD(C)'])
+print(master_df.describe())
+
+# reorganize master df and export csv file 
+export = master_df[['UWI','Lat','Long','Elevation (m)','Spud Date','TD (m)','TD SS(m)', # well info
+                    'DST_mid_depth','DST_mid_depth_SS','DST Temp (C)','DST Formation', # DST Temp raw data
+                    'Pressure Depth (m)','Pressure Depth SS (m)','DST_Temp2 (C)','DST Formation2', # DST Pressure raw data
+                    'Last Prod Year', 'Mean Yield', 'Init HS Press (kPa)', # Production raw data
+                     'Set','True1(C)','True2(C)','True_TD(C)','Static_Temp (C)','TrueTemp']] #setclass and true data
+
+#export.to_csv('./Data for Datathon/Structured Data/Canada_master_df_v1.csv')
 
 # create training and validat
-training_df = full_df[full_df['Set']=='Training']
-validation_df = full_df[full_df['Set']=='Validation_Testing']
-print(validation_df.describe())
+training_df = master_df[master_df['Set']=='Training']
+validation_df = master_df[master_df['Set']=='Validation_Testing']
+
 
 # plot
 fig1, ax1 = plt.subplots(1,3,sharey=True,sharex=True)
@@ -85,12 +94,14 @@ fig1, ax1 = plt.subplots(1,3,sharey=True,sharex=True)
 _ = sns.scatterplot(x=training_df['True1(C)'],y = training_df['DST_mid_depth'],alpha = 0.6,ax=ax1[0])
 _ = sns.scatterplot(x=training_df['DST Temp (C)'],y = training_df['DST_mid_depth'],palette ='Paired' ,alpha = 0.6,ax=ax1[0])
 #_ = sns.scatterplot(x=training_df['True2(C)'],y = training_df['Pressure Depth (m)'],alpha = 0.6,ax=ax1[1])
-_ = sns.scatterplot(x=full_df['DST_Temp2 (C)'],y = full_df['Pressure Depth (m)'],hue =full_df['Set'],palette = 'Set1',alpha = 0.6,ax=ax1[1])
-_ = sns.scatterplot(x=full_df['True_TD(C)'],y = full_df['TD (m)'],hue = full_df['Set'],palette ='Set2',alpha = 0.6,ax=ax1[2])
-_ = sns.scatterplot(x=training_df['Static_Temp (C)'],y = training_df['TD (m)'],alpha = 0.6,ax=ax1[2])
+_ = sns.scatterplot(x=master_df['DST_Temp2 (C)'],y = master_df['Pressure Depth (m)'],hue =master_df['Set'],palette = 'Set1',alpha = 0.6,ax=ax1[1])
+legend3 = ['True','Static']
+_ = sns.scatterplot(x=master_df['True_TD(C)'],y = master_df['TD (m)'],alpha = 0.6,ax=ax1[2])
+_ = sns.scatterplot(x=master_df['Static_Temp (C)'],y = master_df['TD (m)'],alpha = 0.8,ax=ax1[2])
+plt.legend(legend3)
 ax1[0].invert_yaxis()
 plt.show()
 
 #print(Static_Duvernay_out.head())
 pwdf(master_df, 'Lat', 'Long','UWI','TD (m)','True_TD(C)','DST_mid_depth','True1(C)',
-                'Pressure Depth (m)','True2(C)', mapname='Duvernay_True')
+                'Pressure Depth (m)','True2(C)', mapname='./Data for Datathon/Structured Data/Canada_data')
