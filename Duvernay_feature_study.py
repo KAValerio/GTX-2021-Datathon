@@ -8,7 +8,7 @@ from tqdm import tqdm
 import re
 
 # import master_df csv
-master_df = pd.read_csv('./Data for Datathon/Structured Data/Canada_master_df_v1.csv')
+master_df = pd.read_csv('./Data for Datathon/Structured Data/Duvernay_master_df_v1.csv')
 
 # create training and validation subsets
 training_df = master_df[master_df['Set']=='Training']
@@ -23,8 +23,6 @@ cat_columns = train1.select_dtypes(include=['object']).columns
 for column in tqdm(cat_columns):
     le = LabelEncoder()
     train1[column] = le.fit_transform(train1[column])
-#print(list(train1))
-#print(train1.head(10))​
 xgr = xgb.XGBRegressor(random_state=42)
 
 reg_xgr = xgr.fit(train1, training_df['TrueTemp'].values.reshape(-1, 1))

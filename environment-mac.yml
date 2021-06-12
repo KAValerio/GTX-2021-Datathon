@@ -1,0 +1,20 @@
+name: gtx2021
+channels:
+  - defaults
+dependencies:
+  - pip==21.1.1
+  - python==3.8.10
+  - pip:
+    - matplotlib==3.3.4
+    - numpy==1.20.2
+    - pandas==1.2.4
+    - pillow==8.2.0
+    - scikit-learn==0.24.2
+    - scipy==1.6.2
+    - seaborn==0.11.1
+    - tqdm==4.59.0
+    - laspy==1.7.0
+    - folium==0.12.1
+    - lasio==0.29
+    - xgboost==1.4.2
+    
