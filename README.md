@@ -9,10 +9,20 @@ Please see the following link for instructions
 	
 	
 To update environment with new packages: 
-
 ```
 conda env update --name gtx2021 --file environment.yml
 ```
+or for mac:
+```
+conda env update --name gtx2021 --file environment-mac.yml
+```
+
+
+To activate the environment:
+```
+conda activate gtx2021
+```
+
 
 	
 ## Adding Data to Project 
@@ -26,3 +36,7 @@ MAIN PROJECT FOLDER \
 │   ├── Duvernay/ \
 │   ├── Eaglebine/ \
 │   └── ...
+
+
+## Running Scripts and Seeing Resutls
+

@@ -1,5 +1,6 @@
 from folium.map import FeatureGroup
-
+import folium
+import numpy as np
 
 def plot_wells_df(df, lat, long, name, *vars, mapname='Map1'):
     """
@@ -13,13 +14,6 @@ def plot_wells_df(df, lat, long, name, *vars, mapname='Map1'):
         vars - column name(s) for attribute(s) to color well locations by. Each attribute will be added as a map layer
         mapname(str optional) - name for the output map
     """
-
-
-    # Import libraries
-    import folium
-    import numpy as np
-
-    print(df.head())
     # Create lists for the surface coordinates and well UWI
     surf_lat = list(df[lat])
     surf_long = list(df[long])
@@ -47,9 +41,7 @@ def plot_wells_df(df, lat, long, name, *vars, mapname='Map1'):
         ps = df[var]
         P25 = ps.quantile(0.25)
         P75 = ps.quantile(0.75)
-        print (P25,P75)
         attr = list(df[var])
-        #print(P25,P75)
         # calculate min/max for attr
         attr_min = np.nanmin(attr)
         attr_max = np.nanmax(attr)
