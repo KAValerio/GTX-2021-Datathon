@@ -22,8 +22,6 @@ Eaglebine_BHT['TempC_BHT'] = (Eaglebine_BHT['BHTorMRT (maximum recorded temperat
 Eaglebine_BHT.head()
 print("number of unique wells: " + str(len(pd.unique(Eaglebine_BHT['UWI']))))
 
-Eaglebine_Truth = pd.read_excel(dir_eaglebine+'Eaglebine TrueTemp_Train2.xlsx')
-
 # Read in Eaglebine synthetic "true formation temperature"
 Eaglebine_Truth = pd.read_excel(dir_eaglebine+'Eaglebine TrueTemp_Train2.xlsx')
 Eaglebine_Truth.head()
